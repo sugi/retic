@@ -20,15 +20,15 @@ class Retic
     @charset = opts[:charset] || 'utf-8'
     @cur_action = nil
     @cur_template = nil
+    @cgi_headers = opts[:cgi_headers] || {"Cache-Control" => "no-cache"}
   end
-  attr_accessor :cgi, :templatedir, :charset
+  attr_accessor :cgi, :templatedir, :charset, :cgi_headers
 
   # action runner.
   def run
     @cur_template = @cur_action ||= param('action') || 'index'
     unless respond_to? "do_#{@cur_action}"
-      cgi.out("type" => "text/plain", "charset" => @charset,
-	      "status" => "400", "X-Content-Type-Options" => "nosniff") {
+      cgi.out(gen_cgi_headers("type" => "text/plain", "status" => "400")) {
 	"No action '#{CGI.escapeHTML(@cur_action)}'."
       }
       return
@@ -37,10 +37,16 @@ class Retic
     @cur_template and render @cur_template, args
   end
 
+  def gen_cgi_headers(opts = {})
+    Hash[*{
+      "charset" => charset, "X-Content-Type-Options" => "nosniff"
+    }.update(cgi_headers).update(opts).select{|k, v| v }.flatten]
+  end
+
   # Stub function. You need to override.
   def do_index
     @cur_template = nil
-    cgi.out("type" => "text/plain", "charset" => @charset) {
+    cgi.out(gen_cgi_headers("type" => "text/plain")) {
       <<-"EOT"
       Welcome to Retic! This is stub action for '#{@cur_action}'.
       Put your template file as '#{@templatedir}/#{@cur_action}.erb.html'.
@@ -61,7 +67,7 @@ class Retic
     view = View.new
     vars = default_vars
     view.set_variable(vars.merge(user_vars))
-    cgi.out("charset" => @charset) {
+    cgi.out(gen_cgi_headers) {
       view.include_template name
     }
   end
