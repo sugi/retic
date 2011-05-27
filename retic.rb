@@ -40,7 +40,7 @@ class Retic
   # Stub function. You need to override.
   def do_index
     @cur_template = nil
-    cgi.out ("type" => "text/plain", "charset" => @charset) {
+    cgi.out("type" => "text/plain", "charset" => @charset) {
       <<-"EOT"
       Welcome to Retic! This is stub action for '#{@cur_action}'.
       Put your template file as '#{@templatedir}/#{@cur_action}.erb.html'.
