@@ -1,0 +1,50 @@
+= retic - Really Tiny CGI library for ruby
+
+Author:: Tatsuki Sugiura <sugi@nemui.org>
+Copyright:: (C) 2011 Tatsuki Sugiura <sugi@nemui.org>
+License:: Ruby's
+
+== Description
+
+Retic is a tiny View-Controller framework for CGI.
+This can be used by single .rb file without any external libraries.
+
+== Example
+
+CGI file:
+
+  #!/usr/bin/ruby
+  require 'retic.rb'
+  
+  class YourWebApp < Retic
+    def do_index
+    end
+    def do_echo
+      {:input => param('input')}
+    end
+  end
+  YourWebApp.run
+
+Template file (templates/index.erb.html):
+
+  <form action="<%= @self_url%>">
+  <input type="text" name="input">
+  <input type="submit" value="echo!">
+  <input type="hidden" name="action" value="echo">
+  </form>
+
+Template file (templates/echo.erb.html):
+
+  <p>your input: <b><%= h(@input) %></b><p>
+
+== Variables in template
+
+There variables are provided on default;
+* @self_url - current CGI URL without query string
+* @controller - current controller instance
+* @cgi - current cgi instance
+
+To change default variable, override default_vars method.
+
+You can return a hash from action methods (do_ACTIONNAME) to
+add variables for template.
