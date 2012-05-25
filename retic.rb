@@ -32,6 +32,7 @@ class Retic
     @cur_template = nil
     @cgi_headers = opts[:cgi_headers] || {"Cache-Control" => "no-cache"}
     @action_key = 'action'
+    @upload_file_autoread = true
   end
   attr_accessor :cgi, :templatedir, :charset, :cgi_headers
 
@@ -147,19 +148,25 @@ class Retic
   # chortcut for cgi.params (no array support currently)
   def param(key)
     cgi.params[key] or return nil
-    begin 
-      StringIO === cgi.params[key][0] and 
-        return cgi.params[key][0].read
-    rescue NameError
-      # ignore
+    if @upload_file_autoread
+      begin
+        StringIO === cgi.params[key][0] and
+          return cgi.params[key][0].read
+      rescue NameError
+        # ignore
+      end
+      begin
+        Tempfile === cgi.params[key][0] and
+          return cgi.params[key][0].read
+      rescue NameError
+        # ignore
+      end
     end
-    begin
-    Tempfile === cgi.params[key][0] and 
-        return cgi.params[key][0].read
-    rescue NameError
-      # ignore
+    if cgi.params[key].size > 1
+      return cgi.params[key]
+    else
+      return cgi.params[key][0]
     end
-    return cgi.params[key][0]
   end
 
   # Utility functions and binding on template.
