@@ -133,6 +133,14 @@ name}", "#{name}.erb.html")
       end
       self.__send__ "_tmpl_#{name}"
     end
+
+    def link_to(text, action, query_params = {}, html_attrs = {})
+      ret = %Q{<a href="#{@controller.url(action, query_params)}"}
+      html_attrs.each do |k, v|
+        ret << %Q{ #{CGI.escapeHTML(k.to_s)}="#{CGI.escapeHTML(v.to_s)}"}
+      end
+      ret << ">#{text}</a>"
+    end
   end # View
 
   # CGI class runner with fatal error catcher
