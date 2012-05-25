@@ -19,7 +19,7 @@ class Retic
   class RedirectAction < AbortAction; end
   class ForwardAction < AbortAction; end
 
-  VERSION = "0.1.0"
+  VERSION = "0.2.0"
 
   # Options:
   # * :templatedir => set template directory (default: 'templates')
